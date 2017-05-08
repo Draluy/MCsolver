@@ -6,14 +6,26 @@
       <tbody>
       <tr v-for="row in values">
         <td v-for="(col, index) in row" @click="tap($event, col)" v-model="row[index]">
-          {{col.value}}
+          {{col.value}}<div class="hide"><input class="invisible" type="text" v-model="userinput"></div>
         </td>
       </tr>
       </tbody>
     </table>
-    <div class="hide"><input id="thehiddeninput" type="text" v-model="userinput"></div>
-    <button :disabled="!canSubmit" @click="solve">Solve!</button>
 
+    <button :disabled="!canSubmit" @click="solve">Solve!</button><br/>
+<hr>
+    <div v-if="words.length > 0">
+    Mots trouves:
+    <ul >
+      <li v-for="word in words">{{word}}</li>
+    </ul>
+    </div>
+    <div v-else>
+      No results
+    </div>
+<hr>
+    <label for="minLength">Longueur mini des mots<input id="minLength" type="text" @blur="setprops" v-model="minLength" > </label><br/>
+    <!--label for="gridSize">Taille de la grille<input id="gridSize" type="text" v-model="gridSize"></label-->
   </div>
 </template>
 
@@ -27,15 +39,18 @@
     data () {
       return {
         gridSize: 5,
+        minLength : 4,
         userinput: "",
         selectedModel: null,
         selectedTd: null,
         values: [],
         canSubmit: false,
-        gridService : new GridService()
+        gridService : null,
+        words : []
       }
     },
     mounted: function () {
+      this.gridService = new GridService(this.gridSize, this.minLength);
       let values = [];
       for (let i = 0; i < this.gridSize; i++) {
         values[i] = new Array(this.gridSize);
@@ -55,7 +70,7 @@
       ]
       for (let i = 0; i < this.gridSize; i++) {
         for (let j = 0; j < this.gridSize; j++) {
-          values[i][j] = {"x": j, "y": i, "value": arr[i*5+j]};
+          values[i][j] = {"x": j, "y": i, "value": arr[i*this.gridSize+j]};
         }
       }
       //END DEBUG
@@ -68,10 +83,11 @@
           this.canSubmit = true;
         });
     },
+
     methods: {
       tap: function (obj, col) {
         let td = obj.target;
-        let input = document.querySelector("#thehiddeninput");
+        let input = td.querySelector("input");
 
         if (!this.selectedTd){
           this.selectedTd = td;
@@ -84,7 +100,10 @@
         input.focus();
       },
       solve : function (evt) {
-        this.gridService.findWords(this.values)
+        this.words = this.gridService.findWords(this.values);
+      },
+      setprops : function (evt) {
+        this.gridService.setProps(this.gridSize, this.minLength);
       }
     },
     watch: {
@@ -109,8 +128,8 @@
     margin-right: auto;
     font-size: 4em;
     border-collapse: collapse;
-    width: 70vh;
-    height: 70vh;
+    width: 50vw;
+    height: 50vw;
   }
 
   table td {
@@ -124,14 +143,26 @@
     height: 0;
   }
 
-  input {
+  input.invisible {
     opacity: 0;
     width: 0;
     height: 0;
   }
 
+
+
   button{
     font-size: 2em;
-    width: 70vh;
+    width: 50vw;
+  }
+
+  @media only screen and (max-device-width: 600px){
+    table {
+      width: 90vw;
+      height: 90vw;
+    }
+    button{
+      width: 90vw;
+    }
   }
 </style>
