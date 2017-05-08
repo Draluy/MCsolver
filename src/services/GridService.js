@@ -11,11 +11,12 @@ export class GridService{
     for (let line of grid) {
       for (let cell of line) {
         if(cell.value) {
-          let letters = []
+          let letters = [];
           letters.push(cell);
+          console.log("FINDING WORD STARTING WITH ", cell.value)
           let it = this.findWord(grid, letters);
           for (let word of it){
-            console.log("word found starting with letter ", cell.value, word);
+            console.log("WORD FOUND STARTING WITH ", cell.value, word);
           }
         }
       }
@@ -26,30 +27,36 @@ export class GridService{
   findWord  = function* (grid, letters){
     //up
     let curLetter =  letters[letters.length - 1];
-    let upLetter = this.findLetterByCoord (curLetter.x  , curLetter.y - 1, grid);
 
-    if (upLetter && upLetter.value){
-      letters.push(upLetter);
-      let wordStart = this.getWordFromArray(letters);
-      let wordsFound = this.wordsStartingWith(wordStart);
+    let lettersAround = this.findLettersAround (curLetter, grid, letters);
+    //console.log("curLetter is ",curLetter.value,  " letters around are", lettersAround.map(l => l.value))
 
-      // no words found
-      if (wordsFound.length === 0){
-        console.log("nothing found, returning")
-        return;
+    for (let letter of lettersAround){
+      if (letter && letter.value){
+        //console.log("adding letter ", letter.value, "to the array")
+        let newLetters = letters.slice();
+        newLetters.push(letter);
+        let wordStart = this.getWordFromArray(newLetters);
+        let wordsFound = this.wordsStartingWith(wordStart);
+
+        // no words found
+        if (wordsFound.length === 0){
+          //console.log("nothing found starting with ", wordStart,", skipping")
+          continue;
+        }
+
+        //several words match: remove from
+        if (this.containsExactly(wordsFound, wordStart)){
+          yield wordStart;
+        }
+
+        yield * this.findWord(grid, newLetters);
       }
-
-      //1 only word matches, return
-      if (wordsFound.length === 1){
-        console.log("found", wordsFound[0]);
-        debugger
-        yield wordsFound[0];
-      }
-
-      //several words match
-      console.log("several matches ", wordsFound)
-      yield * this.findWord(grid, letters);
     }
+  }
+
+  containsExactly(wordsFound, wordStart) {
+    return wordsFound.filter(word => word == wordStart).length > 0;
   }
 
   wordsStartingWith(wordStart){
@@ -85,6 +92,28 @@ export class GridService{
     for(let line of lines){
       this.dict.push(line);
     }
+  }
+
+  findLettersAround (letter, grid, letters) {
+    let directions = [[0,1], [0,-1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]];
+    let lettersAround = [];
+
+    for (let direction of directions){
+      let adjacentLetter = this.findLetterByCoord (letter.x + direction[0] , letter.y + direction[1], grid);
+
+      if (adjacentLetter && adjacentLetter.value) {
+        let letterInList = this.isLetterInList(letters, adjacentLetter);
+        //console.log("has letter ", adjacentLetter.value, " been in ", letters.map(l=>l.value), " = ", letterInList)
+        if (!letterInList) {
+          lettersAround.push(adjacentLetter);
+        }
+      }
+    }
+    return lettersAround;
+  }
+
+  isLetterInList(letters, adjacentLetter) {
+    return !!letters.find(letter => letter.x == adjacentLetter.x && letter.y == adjacentLetter.y);
   }
 };
 

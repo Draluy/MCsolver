@@ -44,6 +44,22 @@
           values[i][j] = {"x": j, "y": i, "value": null };
         }
       }
+
+      //DEBUG
+      let arr = [
+          "z",null, null, null, null,
+        "i","u", null, null, null,
+        "t",null, null, null, null,
+        null,null, null, null, null,
+        null,null, null, null, null
+      ]
+      for (let i = 0; i < this.gridSize; i++) {
+        for (let j = 0; j < this.gridSize; j++) {
+          values[i][j] = {"x": j, "y": i, "value": arr[i*5+j]};
+        }
+      }
+      //END DEBUG
+
       this.values = values;
 
       axios.get('/static/dict.txt')
