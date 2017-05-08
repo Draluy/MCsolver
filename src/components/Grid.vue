@@ -31,7 +31,8 @@
         selectedModel: null,
         selectedTd: null,
         values: [],
-        canSubmit: false
+        canSubmit: false,
+        gridService : new GridService()
       }
     },
     mounted: function () {
@@ -40,14 +41,14 @@
         values[i] = new Array(this.gridSize);
 
         for (let j = 0; j < this.gridSize; j++) {
-          values[i][j] = {"x": j, "y": i, "value": "" };
+          values[i][j] = {"x": j, "y": i, "value": null };
         }
       }
       this.values = values;
 
       axios.get('/static/dict.txt')
         .then(response => {
-          GridService.setDict(response);
+          this.gridService.setDict(response);
           this.canSubmit = true;
         });
     },
@@ -67,7 +68,7 @@
         input.focus();
       },
       solve : function (evt) {
-        GridService.findWords(this.values)
+        this.gridService.findWords(this.values)
       }
     },
     watch: {
