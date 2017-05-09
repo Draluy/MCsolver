@@ -6,25 +6,28 @@
       <tbody>
       <tr v-for="row in values">
         <td v-for="(col, index) in row" @click="tap($event, col)" v-model="row[index]">
-          {{col.value}}<div class="hide"><input class="invisible" type="text" v-model="userinput"></div>
+          {{col.value}}
+          <div class="hide"><input class="invisible" type="text" v-model="userinput"></div>
         </td>
       </tr>
       </tbody>
     </table>
 
-    <button :disabled="!canSubmit" @click="solve">Solve!</button><br/>
-<hr>
+    <button :disabled="!canSubmit" @click="solve">Solve!</button>
+    <br/>
+    <hr>
     <div v-if="words.length > 0">
-    Mots trouves:
-    <ul >
-      <li v-for="word in words">{{word}}</li>
-    </ul>
+      Mots trouves:
+      <ul>
+        <li v-for="word in words">{{word}}</li>
+      </ul>
     </div>
     <div v-else>
       No results
     </div>
-<hr>
-    <label for="minLength">Longueur mini des mots<input id="minLength" type="text" @blur="setprops" v-model="minLength" > </label><br/>
+    <hr>
+    <label for="minLength">Longueur mini des mots<input id="minLength" type="text" @blur="setprops" v-model="minLength">
+    </label><br/>
     <!--label for="gridSize">Taille de la grille<input id="gridSize" type="text" v-model="gridSize"></label-->
   </div>
 </template>
@@ -39,14 +42,14 @@
     data () {
       return {
         gridSize: 5,
-        minLength : 4,
+        minLength: 4,
         userinput: "",
         selectedModel: null,
         selectedTd: null,
         values: [],
         canSubmit: false,
-        gridService : null,
-        words : []
+        gridService: null,
+        words: []
       }
     },
     mounted: function () {
@@ -56,23 +59,23 @@
         values[i] = new Array(this.gridSize);
 
         for (let j = 0; j < this.gridSize; j++) {
-          values[i][j] = {"x": j, "y": i, "value": null };
+          values[i][j] = {"x": j, "y": i, "value": null};
         }
       }
 
       //DEBUG
-      let arr = [
-          "z",null, null, null, null,
-        "i","u", null, null, null,
-        "t",null, null, null, null,
-        null,null, null, null, null,
-        null,null, null, null, null
-      ]
-      for (let i = 0; i < this.gridSize; i++) {
-        for (let j = 0; j < this.gridSize; j++) {
-          values[i][j] = {"x": j, "y": i, "value": arr[i*this.gridSize+j]};
-        }
-      }
+      /*let arr = [
+       "z",null, null, null, null,
+       "i","u", null, null, null,
+       "t",null, null, null, null,
+       null,null, null, null, null,
+       null,null, null, null, null
+       ]
+       for (let i = 0; i < this.gridSize; i++) {
+       for (let j = 0; j < this.gridSize; j++) {
+       values[i][j] = {"x": j, "y": i, "value": arr[i*this.gridSize+j]};
+       }
+       }*/
       //END DEBUG
 
       this.values = values;
@@ -89,7 +92,7 @@
         let td = obj.target;
         let input = td.querySelector("input");
 
-        if (!this.selectedTd){
+        if (!this.selectedTd) {
           this.selectedTd = td;
         }
 
@@ -99,17 +102,17 @@
         this.selectedModel = col;
         input.focus();
       },
-      solve : function (evt) {
+      solve: function (evt) {
         this.words = this.gridService.findWords(this.values);
       },
-      setprops : function (evt) {
+      setprops: function (evt) {
         this.gridService.setProps(this.gridSize, this.minLength);
       }
     },
     watch: {
       userinput: function (val, oldVal) {
         if (val) {
-          this.selectedModel.value = val;
+          this.selectedModel.value = val.toLowerCase();
           this.userinput = "";
         }
       }
@@ -134,8 +137,8 @@
 
   table td {
     border: solid 2px #CCC;
-    width:20%;
-    height:20%;
+    width: 20%;
+    height: 20%;
   }
 
   div.hide {
@@ -149,19 +152,18 @@
     height: 0;
   }
 
-
-
-  button{
+  button {
     font-size: 2em;
     width: 50vw;
   }
 
-  @media only screen and (max-device-width: 600px){
+  @media only screen and (max-device-width: 600px) {
     table {
       width: 90vw;
       height: 90vw;
     }
-    button{
+
+    button {
       width: 90vw;
     }
   }

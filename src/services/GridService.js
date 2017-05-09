@@ -1,12 +1,13 @@
 /**
  * Created by redeyed on 5/6/17.
  */
-export class GridService {
+import {DictService} from "./DictService"
 
-  dict = [];
+export class GridService {
 
   constructor (gridSize, minLength){
     this.setProps (gridSize, minLength);
+
   }
 
   setProps (gridSize, minLength){
@@ -48,22 +49,24 @@ export class GridService {
 
     for (let letter of lettersAround) {
       if (letter && letter.value) {
-        //console.log("adding letter ", letter.value, "to the array")
         let newLetters = letters.slice();
         newLetters.push(letter);
 
         if (newLetters.length >= this.minLength) {
+          //console.log("adding letter ", letter.value, "to the array")
           let wordStart = this.getWordFromArray(newLetters);
-          let wordsFound = this.wordsStartingWith(wordStart);
+
+          //let wordsFound = this.wordsStartingWith(wordStart);
+          let {startsWith, isFinal} = this.dictService.wordsStartingWith(wordStart);
 
           // no words found
-          if (wordsFound.length === 0) {
+          if (!startsWith) {
             //console.log("nothing found starting with ", wordStart,", skipping")
             continue;
           }
 
-          //several words match: remove from
-          if (this.containsExactly(wordsFound, wordStart)) {
+          //at least one found
+          if (isFinal) {
             yield wordStart;
           }
         }
@@ -71,14 +74,6 @@ export class GridService {
         yield * this.findWord(grid, newLetters);
       }
     }
-  }
-
-  containsExactly(wordsFound, wordStart) {
-    return wordsFound.filter(word => word == wordStart).length > 0;
-  }
-
-  wordsStartingWith(wordStart) {
-    return this.dict.filter(word => word.startsWith(wordStart));
   }
 
   getWordFromArray(letters) {
@@ -106,10 +101,7 @@ export class GridService {
   setDict(data) {
     //split on new lines
     var lines = data.data.split('\n');
-
-    for (let line of lines) {
-      this.dict.push(line);
-    }
+    this.dictService = new DictService (lines);
   }
 
   findLettersAround(letter, grid, letters) {
