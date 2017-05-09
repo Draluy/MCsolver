@@ -32,12 +32,7 @@ export class GridService {
         }
       }
     }
-
-    let onlyUnique = function (value, index, self) {
-      return self.indexOf(value) === index;
-    }
-    let unique = wordsFound.filter( onlyUnique );
-    return unique;
+    return wordsFound;
   }
 
   findWord = function*(grid, letters) {
@@ -53,11 +48,8 @@ export class GridService {
         newLetters.push(letter);
 
         if (newLetters.length >= this.minLength) {
-          //console.log("adding letter ", letter.value, "to the array")
-          let wordStart = this.getWordFromArray(newLetters);
-
           //let wordsFound = this.wordsStartingWith(wordStart);
-          let {startsWith, isFinal} = this.dictService.wordsStartingWith(wordStart);
+          let {startsWith, isFinal} = this.dictService.wordsStartingWith(newLetters);
 
           // no words found
           if (!startsWith) {
@@ -67,7 +59,7 @@ export class GridService {
 
           //at least one found
           if (isFinal) {
-            yield wordStart;
+            yield newLetters;
           }
         }
 

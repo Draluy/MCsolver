@@ -18,9 +18,9 @@
     <hr>
     <div v-if="words.length > 0">
       Mots trouves:
-      <ul>
-        <li v-for="word in words">{{word}}</li>
-      </ul>
+      <select>
+        <option v-for="word in words">{{word.map(l=>l.value).join("")}}</option>
+      </select>
     </div>
     <div v-else>
       No results
@@ -64,7 +64,7 @@
       }
 
       //DEBUG
-      /*let arr = [
+      let arr = [
        "z",null, null, null, null,
        "i","u", null, null, null,
        "t",null, null, null, null,
@@ -75,7 +75,7 @@
        for (let j = 0; j < this.gridSize; j++) {
        values[i][j] = {"x": j, "y": i, "value": arr[i*this.gridSize+j]};
        }
-       }*/
+       }
       //END DEBUG
 
       this.values = values;

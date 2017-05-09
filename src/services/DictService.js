@@ -34,31 +34,16 @@ export class DictService {
     }
   }
 
-  wordsStartingWith(word){
-    let startsWith = true;
-
-    let curNode = this.root;
-    for (let letter of word) {
-      if (!curNode[letter]){
-        startsWith = false;
-        break;
-      }
-      curNode = curNode[letter];
-    }
-
-    return {"startsWith" : startsWith, "isFinal" : curNode.isFinal};
-  }
-
-  wordsStartingWithArray(letters){
+  wordsStartingWith(letters){
     let startsWith = true;
 
     let curNode = this.root;
     for (let letter of letters) {
-      if (!curNode[letter]){
+      if (!curNode[letter.value]){
         startsWith = false;
         break;
       }
-      curNode = curNode[letter];
+      curNode = curNode[letter.value];
     }
 
     return {"startsWith" : startsWith, "isFinal" : curNode.isFinal};
