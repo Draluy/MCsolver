@@ -70,11 +70,11 @@
 
       //DEBUG
       let arr = [
+        null, null, null, null, null,
         "z", null, null, null, null,
         "i", "u", "s", null, null,
         "t", "e", "d", null, null,
-        "i", "t", "a", null, null,
-        null, null, null, null, null
+        "i", "t", "a", null, null
       ]
       for (let i = 0; i < this.gridSize; i++) {
         for (let j = 0; j < this.gridSize; j++) {
@@ -128,8 +128,10 @@
         progress.value = 1;
 
         for (let word of this.words) {
-          this.gridService.removeWord(word, this.values);
-
+          let newGrid = this.gridService.removeWord(word, this.values);
+          let wordsFound = this.gridService.findWords(newGrid);
+//recurse here
+          console.log("wordsFound,", wordsFound);
           progress.value = progress.value + 100 / nbWords;
         }
 

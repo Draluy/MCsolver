@@ -1,16 +1,16 @@
 /**
  * Created by redeyed on 5/6/17.
  */
-import {DictService} from "./DictService"
+import {DictService} from "./DictService";
 
 export class GridService {
 
-  constructor (gridSize, minLength){
-    this.setProps (gridSize, minLength);
+  constructor(gridSize, minLength) {
+    this.setProps(gridSize, minLength);
 
   }
 
-  setProps (gridSize, minLength){
+  setProps(gridSize, minLength) {
     this.gridSize = gridSize;
     this.minLength = minLength;
   }
@@ -44,6 +44,7 @@ export class GridService {
 
     for (let letter of lettersAround) {
       if (letter && letter.value) {
+        //shallow copy
         let newLetters = letters.slice();
         newLetters.push(letter);
 
@@ -66,6 +67,39 @@ export class GridService {
         yield * this.findWord(grid, newLetters);
       }
     }
+  }
+
+  removeWord(word, grid) {
+    //test something like this if this is too slow const newArray = myArray.map(a => Object.assign({}, a));
+    let gridCopy = JSON.parse(JSON.stringify(grid));
+    for (let letter of word) {
+      gridCopy[letter.y][letter.x].value = null;
+    }
+
+    //for each column, put the letters at the bottom
+    for (let i = 0; i < this.gridSize; i++) {
+      let values = [];
+
+      // recuperation des lettres
+      for (let j = this.gridSize - 1; j >= 0; j--) {
+        values.push(gridCopy[j][i]);
+      }
+
+      values = values.filter(l => l.value !== null);
+
+      //copie a partir du bas
+      let k = 0;
+      for (let j = this.gridSize - 1; j >= 0; j--) {
+        if (k < values.length) {
+          gridCopy[j][i].value = values[k].value;
+        } else {
+          gridCopy[j][i].value = null;
+        }
+        k++;
+      }
+    }
+
+    return gridCopy;
   }
 
   getWordFromArray(letters) {
@@ -93,7 +127,7 @@ export class GridService {
   setDict(data) {
     //split on new lines
     var lines = data.data.split('\n');
-    this.dictService = new DictService (lines);
+    this.dictService = new DictService(lines);
   }
 
   findLettersAround(letter, grid, letters) {
@@ -118,6 +152,6 @@ export class GridService {
     return !!letters.find(letter => letter.x == adjacentLetter.x && letter.y == adjacentLetter.y);
   }
 }
-;
+
 
 
