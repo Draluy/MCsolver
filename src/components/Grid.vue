@@ -6,8 +6,8 @@
       <tbody>
       <tr v-for="row in values">
         <td v-for="(col, index) in row" @click="tap($event, col)" v-model="row[index]">
-          {{col.value}}
           <div class="hide"><input class="invisible" type="text" v-model="userinput"></div>
+          {{col.value}}
         </td>
       </tr>
       </tbody>
@@ -16,6 +16,11 @@
     <button :disabled="!canSubmit" @click="solve">Solve!</button>
     <br/>
     <hr>
+    <label for="progress" id="progresslabel">
+
+    </label>
+    <progress value="0" max="100" id="progress"></progress>
+
     <div v-if="words.length > 0">
       Mots trouves:
       <select>
@@ -65,32 +70,39 @@
 
       //DEBUG
       let arr = [
-       "z",null, null, null, null,
-       "i","u", null, null, null,
-       "t",null, null, null, null,
-       null,null, null, null, null,
-       null,null, null, null, null
-       ]
-       for (let i = 0; i < this.gridSize; i++) {
-       for (let j = 0; j < this.gridSize; j++) {
-       values[i][j] = {"x": j, "y": i, "value": arr[i*this.gridSize+j]};
-       }
-       }
+        "z", null, null, null, null,
+        "i", "u", "s", null, null,
+        "t", "e", "d", null, null,
+        "i", "t", "a", null, null,
+        null, null, null, null, null
+      ]
+      for (let i = 0; i < this.gridSize; i++) {
+        for (let j = 0; j < this.gridSize; j++) {
+          values[i][j] = {"x": j, "y": i, "value": arr[i * this.gridSize + j]};
+        }
+      }
       //END DEBUG
 
       this.values = values;
 
       axios.get('/static/dict.txt')
-        .then(response => {
-          this.gridService.setDict(response);
-          this.canSubmit = true;
+       .then(response => {
+       this.gridService.setDict(response);
+       this.canSubmit = true;
         });
     },
 
     methods: {
       tap: function (obj, col) {
         let td = obj.target;
-        let input = td.querySelector("input");
+
+        console.log("td.tagName ", td.tagName )
+        if(td.tagName != "TD"){
+          td = obj.target.parentElement.parentElement;
+        }
+
+        console.log("td ", td)
+        let input = td.querySelector("input") || obj.target;
 
         if (!this.selectedTd) {
           this.selectedTd = td;
@@ -103,7 +115,25 @@
         input.focus();
       },
       solve: function (evt) {
+        this.canSubmit = false;
+
+        let progress = document.querySelector("#progress");
+        let label = document.querySelector("#progresslabel");
+        progress.value = 0;
+
+
         this.words = this.gridService.findWords(this.values);
+        let nbWords = this.words.length;
+        label.innerText = "Found for list of words containing " + nbWords + " values.";
+        progress.value = 1;
+
+        for (let word of this.words) {
+          this.gridService.removeWord(word, this.values);
+
+          progress.value = progress.value + 100 / nbWords;
+        }
+
+        this.canSubmit = true;
       },
       setprops: function (evt) {
         this.gridService.setProps(this.gridSize, this.minLength);
@@ -141,15 +171,14 @@
     height: 20%;
   }
 
-  div.hide {
-    width: 0;
-    height: 0;
+  div.hide{
+    height:0px;
   }
 
   input.invisible {
     opacity: 0;
-    width: 0;
-    height: 0;
+    height:0px;
+    display:inline-block;
   }
 
   button {
