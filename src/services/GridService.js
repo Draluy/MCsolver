@@ -16,16 +16,14 @@ export class GridService {
   }
 
   findWords(grid) {
-    console.log("finding words")
+    const wordsFound = [];
 
-    let wordsFound = [];
-
-    for (let line of grid) {
-      for (let cell of line) {
+    for (const line of grid) {
+      for (const cell of line) {
         if (cell.value) {
-          let letters = [];
+          const letters = [];
           letters.push(cell);
-          let it = this.findWord(grid, letters);
+          const it = this.findWord(grid, letters);
           for (let word of it) {
             wordsFound.push(word);
           }
@@ -100,6 +98,44 @@ export class GridService {
     }
 
     return gridCopy;
+  }
+
+  lettersRemaining (grid){
+    let remaining = false;
+    for (let i = 0; i < this.gridSize; i++) {
+      for (let j = 0; j < this.gridSize; j++) {
+        if (grid[i][j].value !== null){
+          remaining = true;
+          break;
+        };
+      }
+
+      if (remaining){
+        break;
+      }
+    }
+
+    return remaining;
+  }
+
+  findPossibleCombinations (grid, wordToRemove){
+    //returns a copy of the grid
+    let newGrid = this.removeWord(wordToRemove, grid);
+    let wordsFound = this.findWords(newGrid);
+
+    if (wordsFound.length == 0 && !this.lettersRemaining(newGrid)){
+      return wordToRemove;
+    }
+
+    for (let word of wordsFound){
+      let chosenWord = this.findPossibleCombinations(newGrid, word);
+      if (chosenWord != null){
+        console.log ("FOUND A RESULT ",word.map(q=>q.value).join(""), chosenWord.map(q=>q.value).join(""));
+        return word;
+      }
+    }
+
+    return null;
   }
 
   getWordFromArray(letters) {
