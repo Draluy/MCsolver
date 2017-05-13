@@ -70,7 +70,7 @@
       }
 
       //DEBUG
-      let arr = [
+      /*let arr = [
         null, null, null, null, null,
         null, null, null, null, null,
         "i", "b", "i", null, null,
@@ -81,7 +81,7 @@
         for (let j = 0; j < this.gridSize; j++) {
           values[i][j] = {"x": j, "y": i, "value": arr[i * this.gridSize + j]};
         }
-      }
+      }*/
       //END DEBUG
 
       this.values = values;
@@ -172,7 +172,6 @@
           }
         }
         for (let letter of word) {
-
           for (let i = 0, row; row = table.rows[i]; i++) {
             for (let j = 0, col; col = row.cells[j]; j++) {
               if (i == letter.y && j == letter.x) {
