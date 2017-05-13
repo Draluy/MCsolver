@@ -7,6 +7,10 @@ A dropdown will appear with all the solutions. Selecting one will highlight the 
 
 # FAQ
 
+. It doesnt work
+
+Dictionnary is hardcoded in french. Why am I writing this in english.
+
 . The progress bar doesn't work
 
 It would if everything wasn't on the graphics/dom thread. It's dirty.
