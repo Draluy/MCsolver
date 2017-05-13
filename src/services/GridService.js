@@ -100,42 +100,43 @@ export class GridService {
     return gridCopy;
   }
 
-  lettersRemaining (grid){
-    let remaining = false;
+  containsAllNull(grid) {
+    let containsAllNull = true;
     for (let i = 0; i < this.gridSize; i++) {
       for (let j = 0; j < this.gridSize; j++) {
-        if (grid[i][j].value !== null){
-          remaining = true;
+        if (grid[i][j].value !== null) {
+          containsAllNull = false;
           break;
-        };
+        }
       }
 
-      if (remaining){
+      if (!containsAllNull) {
         break;
       }
     }
 
-    return remaining;
+    return containsAllNull;
   }
 
-  findPossibleCombinations (grid, wordToRemove){
+  findPossibleCombinations  = function *(grid, results) {
     //returns a copy of the grid
-    let newGrid = this.removeWord(wordToRemove, grid);
+    let newGrid = this.removeWord(results[results.length - 1], grid);
     let wordsFound = this.findWords(newGrid);
+    let gridEmpty = this.containsAllNull(newGrid);
 
-    if (wordsFound.length == 0 && !this.lettersRemaining(newGrid)){
-      return wordToRemove;
-    }
-
-    for (let word of wordsFound){
-      let chosenWord = this.findPossibleCombinations(newGrid, word);
-      if (chosenWord != null){
-        console.log ("FOUND A RESULT ",word.map(q=>q.value).join(""), chosenWord.map(q=>q.value).join(""));
-        return word;
+    if (wordsFound.length == 0) {
+      if (gridEmpty && wordsFound.length == 0) {
+        console.log("FOUND ", results.map(w=>this.getWordFromArray(w)));
+        yield results;
       }
+      return;
     }
 
-    return null;
+    for (let word of wordsFound) {
+      let newResults = results.slice();
+      newResults.push(word);
+      yield * this.findPossibleCombinations(newGrid, newResults);
+    }
   }
 
   getWordFromArray(letters) {

@@ -47,7 +47,7 @@
     data () {
       return {
         gridSize: 5,
-        minLength: 4,
+        minLength: 3,
         userinput: "",
         selectedModel: null,
         selectedTd: null,
@@ -72,9 +72,9 @@
       let arr = [
         null, null, null, null, null,
         null, null, null, null, null,
-        "i", "u", "s", null, null,
-        "t", "a", "d", null, null,
-        "i", "t", "a", null, null
+        "i", "u", "s", "s", null,
+        "t", "a", "d", "i", null,
+        "i", "t", "a", "b", null
       ]
       for (let i = 0; i < this.gridSize; i++) {
         for (let j = 0; j < this.gridSize; j++) {
@@ -86,9 +86,9 @@
       this.values = values;
 
       axios.get('/static/dict.txt')
-       .then(response => {
-       this.gridService.setDict(response);
-       this.canSubmit = true;
+        .then(response => {
+          this.gridService.setDict(response);
+          this.canSubmit = true;
         });
     },
 
@@ -96,8 +96,8 @@
       tap: function (obj, col) {
         let td = obj.target;
 
-        console.log("td.tagName ", td.tagName )
-        if(td.tagName != "TD"){
+        console.log("td.tagName ", td.tagName)
+        if (td.tagName != "TD") {
           td = obj.target.parentElement.parentElement;
         }
 
@@ -128,7 +128,15 @@
         progress.value = 1;
 
         for (let word of this.words) {
-this.gridService.findPossibleCombinations(this.values, word)
+          let results = [word];
+
+          if (word.map(f=>f.value).join("") == "suit") {
+            let it = this.gridService.findPossibleCombinations(this.values, results);
+
+            for(let arr of it){
+                console.log("result of length", arr.length);
+            }
+          }
           progress.value = progress.value + 100 / nbWords;
         }
 
@@ -170,14 +178,14 @@ this.gridService.findPossibleCombinations(this.values, word)
     height: 20%;
   }
 
-  div.hide{
-    height:0px;
+  div.hide {
+    height: 0px;
   }
 
   input.invisible {
     opacity: 0;
-    height:0px;
-    display:inline-block;
+    height: 0px;
+    display: inline-block;
   }
 
   button {
