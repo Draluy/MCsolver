@@ -126,7 +126,6 @@ export class GridService {
 
     if (wordsFound.length == 0) {
       if (gridEmpty && wordsFound.length == 0) {
-        console.log("FOUND ", results.map(w=>this.getWordFromArray(w)));
         yield results;
       }
       return;

@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>The grid</h1>
 
-    <table>
+    <table id="mytab1">
       <tbody>
       <tr v-for="row in values">
         <td v-for="(col, index) in row" @click="tap($event, col)" v-model="row[index]">
@@ -23,8 +23,8 @@
 
     <div v-if="words.length > 0">
       Mots trouves:
-      <select>
-        <option v-for="word in words">{{word.map(l=>l.value).join("")}}</option>
+      <select v-model="selectedWords">
+        <option v-bind:value="word" v-for="word in words">{{word.map(w=>w.map(l=>l.value).join("")).join("/")}}</option>
       </select>
     </div>
     <div v-else>
@@ -47,14 +47,15 @@
     data () {
       return {
         gridSize: 5,
-        minLength: 3,
+        minLength: 4,
         userinput: "",
         selectedModel: null,
         selectedTd: null,
         values: [],
         canSubmit: false,
         gridService: null,
-        words: []
+        words: [],
+        selectedWords: []
       }
     },
     mounted: function () {
@@ -72,9 +73,9 @@
       let arr = [
         null, null, null, null, null,
         null, null, null, null, null,
-        "i", "u", "s", "s", null,
-        "t", "a", "d", "i", null,
-        "i", "t", "a", "b", null
+        "i", "b", "i", null, null,
+        "t", "a", "a", null, null,
+        "e", "t", "d", null, null
       ]
       for (let i = 0; i < this.gridSize; i++) {
         for (let j = 0; j < this.gridSize; j++) {
@@ -124,21 +125,23 @@
 
         this.words = this.gridService.findWords(this.values);
         let nbWords = this.words.length;
-        label.innerText = "Found for list of words containing " + nbWords + " values.";
         progress.value = 1;
+
+        let arrays = [];
 
         for (let word of this.words) {
           let results = [word];
+          let it = this.gridService.findPossibleCombinations(this.values, results);
 
-          if (word.map(f=>f.value).join("") == "suit") {
-            let it = this.gridService.findPossibleCombinations(this.values, results);
-
-            for(let arr of it){
-                console.log("result of length", arr.length);
-            }
+          for (let arr of it) {
+            arrays.push(arr);
           }
+
           progress.value = progress.value + 100 / nbWords;
         }
+
+        this.words = arrays;
+
 
         this.canSubmit = true;
       },
@@ -149,8 +152,34 @@
     watch: {
       userinput: function (val, oldVal) {
         if (val) {
-          this.selectedModel.value = val.toLowerCase();
+          let input = val.toLowerCase()
+          if (input == " ") {
+            this.selectedModel.value = null;
+          } else {
+            this.selectedModel.value = val.toLowerCase();
+          }
           this.userinput = "";
+        }
+      },
+
+      selectedWords: function (val, oldVal) {
+        let word = val[0];
+        const table = document.getElementById("mytab1");
+
+        for (let i = 0, row; row = table.rows[i]; i++) {
+          for (let j = 0, col; col = row.cells[j]; j++) {
+            col.style.backgroundColor = "white";
+          }
+        }
+        for (let letter of word) {
+
+          for (let i = 0, row; row = table.rows[i]; i++) {
+            for (let j = 0, col; col = row.cells[j]; j++) {
+              if (i == letter.y && j == letter.x) {
+                col.style.backgroundColor = "#77D";
+              }
+            }
+          }
         }
       }
     }
